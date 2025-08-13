@@ -238,14 +238,7 @@ export default function Dashboard() {
                                     }
                                 </p>
                             </div>
-                            <div className="flex items-center space-x-2">
-                                <span className="text-sm text-gray-500">Sort by:</span>
-                                <select className="text-sm border border-gray-300 rounded-lg px-3 py-2 bg-white text-black focus:ring-2 focus:ring-black focus:border-transparent">
-                                    <option>Name</option>
-                                    <option>Stock</option>
-                                    <option>Tags</option>
-                                </select>
-                            </div>
+
                         </div>
 
                         {/* Products Grid */}
@@ -280,10 +273,10 @@ export default function Dashboard() {
                                     No products found
                                 </h3>
                                 <p className="text-gray-600">
-                                        {searchTerm
-                                            ? `No products found for "${searchTerm}". Try different search terms.`
-                                            : "Try adjusting your filters to find what you're looking for."
-                                        }
+                                    {searchTerm
+                                        ? `No products found for "${searchTerm}". Try different search terms.`
+                                        : "Try adjusting your filters to find what you're looking for."
+                                    }
                                 </p>
                             </div>
                         )}

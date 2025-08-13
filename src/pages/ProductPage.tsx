@@ -1,29 +1,42 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { ApiService } from "../services/api";
 import type { Product } from "../types";
-import { dummyProducts } from "../data/products";
 
 export default function ProductPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [product, setProduct] = useState<Product | null>(null);
+  const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate API call to get product by ID
     const fetchProduct = async () => {
-      setLoading(true);
-      // Simulate network delay
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      if (!id) return;
 
-      const foundProduct = dummyProducts.find((p) => p.id === id);
-      setProduct(foundProduct || null);
-      setLoading(false);
+      setLoading(true);
+      try {
+        const productData = await ApiService.getProduct(id);
+        setProduct(productData);
+
+        if (productData) {
+          // Fetch related products based on category
+          const allProducts = await ApiService.getProducts({ limit: 100 });
+          const related = allProducts.products
+            .filter((p: Product) => p.id !== productData.id &&
+              (p.categoryId === productData.categoryId ||
+                p.tags.some((tag: string) => productData.tags.includes(tag))))
+            .slice(0, 3);
+          setRelatedProducts(related);
+        }
+      } catch (error) {
+        console.error('Error fetching product:', error);
+      } finally {
+        setLoading(false);
+      }
     };
 
-    if (id) {
-      fetchProduct();
-    }
+    fetchProduct();
   }, [id]);
 
   const handleBackToList = () => {
@@ -169,6 +182,16 @@ export default function ProductPage() {
               </p>
             </div>
 
+            {/* Price */}
+            <div className="bg-green-50 rounded-xl p-6">
+              <h3 className="text-lg font-semibold text-green-800 mb-2">
+                Price
+              </h3>
+              <p className="text-3xl font-bold text-green-600">
+                ${product.price.toFixed(2)}
+              </p>
+            </div>
+
             {/* Product Tags */}
             <div>
               <h3 className="text-lg font-semibold text-black mb-3">
@@ -207,8 +230,8 @@ export default function ProductPage() {
                   <p className="text-black">{product.tags.length}</p>
                 </div>
                 <div>
-                  <span className="font-medium text-gray-600">Category:</span>
-                  <p className="text-black">Based on tags</p>
+                  <span className="font-medium text-gray-600">Category ID:</span>
+                  <p className="text-black">{product.categoryId}</p>
                 </div>
               </div>
             </div>
@@ -216,11 +239,10 @@ export default function ProductPage() {
             {/* Action Buttons */}
             <div className="space-y-4">
               <button
-                className={`w-full px-6 py-4 rounded-xl font-medium transition-colors ${
-                  product.stockQty > 0
+                className={`w-full px-6 py-4 rounded-xl font-medium transition-colors ${product.stockQty > 0
                     ? "bg-black text-white hover:bg-gray-800 focus:ring-2 focus:ring-black focus:ring-offset-2"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                }`}
+                  }`}
                 disabled={product.stockQty === 0}
               >
                 {product.stockQty > 0 ? "Add to Cart" : "Out of Stock"}
@@ -249,19 +271,13 @@ export default function ProductPage() {
         </div>
 
         {/* Related Products Section */}
-        <div className="mt-16">
-          <h2 className="text-2xl font-bold text-black mb-6">
-            Related Products
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {dummyProducts
-              .filter(
-                (p) =>
-                  p.id !== product.id &&
-                  p.tags.some((tag) => product.tags.includes(tag))
-              )
-              .slice(0, 3)
-              .map((relatedProduct) => (
+        {relatedProducts.length > 0 && (
+          <div className="mt-16">
+            <h2 className="text-2xl font-bold text-black mb-6">
+              Related Products
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {relatedProducts.map((relatedProduct) => (
                 <div
                   key={relatedProduct.id}
                   className="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden cursor-pointer hover:shadow-xl transition-shadow"
@@ -284,14 +300,15 @@ export default function ProductPage() {
                         Stock: {relatedProduct.stockQty}
                       </span>
                       <span className="text-sm text-black font-medium">
-                        View →
+                        ${relatedProduct.price.toFixed(2)}
                       </span>
                     </div>
                   </div>
                 </div>
               ))}
+            </div>
           </div>
-        </div>
+        )}
       </main>
     </div>
   );

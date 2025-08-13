@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { ApiService } from "../services/api";
 
 export default function SignupPage() {
   const [formData, setFormData] = useState({
@@ -17,10 +18,16 @@ export default function SignupPage() {
     setLoading(true);
 
     // Simulate signup API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    // await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // For demo purposes, just redirect to dashboard
-    navigate("/");
+    const response = await ApiService.signUp(formData.firstName, formData.lastName, formData.email, formData.password);
+    console.log(response);
+    if (response.user) {
+      navigate("/");
+    } else {
+      alert("Signup failed");
+    }
+
     setLoading(false);
   };
 

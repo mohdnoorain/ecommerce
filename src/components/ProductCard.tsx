@@ -68,9 +68,16 @@ export default function ProductCard({
         </div>
 
         {/* Stock Information */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-3">
           <span className="text-sm text-gray-500">
             Stock: {product.stockQty} available
+          </span>
+        </div>
+
+        {/* Price and Action */}
+        <div className="flex items-center justify-between">
+          <span className="text-lg font-bold text-green-600">
+            ${product.price.toFixed(2)}
           </span>
 
           {/* View Details Button */}

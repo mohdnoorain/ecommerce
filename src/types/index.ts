@@ -5,6 +5,9 @@ export interface Product {
   imageURL: string;
   stockQty: number;
   tags: string[];
+  categoryId: string;
+  price: number;
+  isActive: boolean;
 }
 
 export interface Category {
@@ -17,4 +20,25 @@ export interface Category {
 export interface FilterState {
   category: string;
   stockAvailability: "all" | "inStock" | "outOfStock";
+}
+
+export interface ProductStats {
+  totalProducts: number;
+  inStockProducts: number;
+  outOfStockProducts: number;
+  totalTags: number;
+}
+
+export interface PaginationInfo {
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
+}
+
+export interface ApiResponse<T> {
+  message: string;
+  data: {
+    content: T;
+  };
 }

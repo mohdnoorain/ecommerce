@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { ApiService } from "../services/api";
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -14,10 +15,19 @@ export default function LoginPage() {
     setLoading(true);
 
     // Simulate login API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    // await new Promise((resolve) => setTimeout(resolve, 1000));
+    const response = await ApiService.signIn(formData.email, formData.password);
+    console.log(response);
+    if (response.token) {
+      localStorage.setItem("userToken", response.token)
+      localStorage.setItem("userInfo", JSON.stringify(response.user))
+      navigate("/");
+    } else {
+      alert("Login failed");
+    }
 
     // For demo purposes, just redirect to dashboard
-    navigate("/");
+    // navigate("/");
     setLoading(false);
   };
 
@@ -27,6 +37,13 @@ export default function LoginPage() {
       [e.target.name]: e.target.value,
     });
   };
+
+  useEffect(() => {
+    const userToken = localStorage.getItem("userToken");
+    if (userToken) {
+      navigate("/");
+    }
+  }, []);
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
